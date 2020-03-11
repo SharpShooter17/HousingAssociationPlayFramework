@@ -17,4 +17,6 @@ case class User(id: Long,
 
   def checkPassword(candidate: String): Boolean = PasswordService.checkPassword(candidate, hashPassword)
 
+  lazy val isAdministrator: Boolean = roles.contains(Role.administrator)
+
 }

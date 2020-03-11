@@ -2,8 +2,7 @@
 @(user: User)(implicit request: RequestHeader)
 
 @main("Homepage") {
-
-    @layout("Welcome in Our Housing Association!", style = "scala") {
+    @layout("Welcome in Our Housing Association!", style = "scala", user = Some(user)) {
         <h3>User details</h3>
         <hr />
         <ul>
@@ -23,5 +22,4 @@
         <h3>Yours apartments</h3>
         <hr />
     }
-
 }

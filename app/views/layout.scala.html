@@ -1,10 +1,10 @@
-@(message: String, style: String = "scala")(content: Html)(implicit request: RequestHeader)
+@import model.domain.User
+@(message: String, style: String = "scala", user: Option[User] = None)(content: Html)(implicit request: RequestHeader)
 
     @defining(play.core.PlayVersion.current) { version =>
-
         <section id="top">
             <div class="wrapper">
-                <h1><a href="https://playframework.com/documentation/@version/Home">@message</a></h1>
+                <h1>@message</h1>
             </div>
         </section>
 
@@ -14,16 +14,16 @@
             </article>
 
             <aside>
-                <h3>Menu</h3>
-                <ul>
-                    <li><a href="https://playframework.com/documentation/@version">Documentation</a></li>
-                    <li><a href="https://playframework.com/documentation/@version/api/@style/index.html">Browse the @{
-                        style.capitalize
-                    } API</a></li>
-                </ul>
-                @if(request.session.get("email").nonEmpty) {
-                    <hr />
+                @if(user.exists(_.isAdministrator)) {
+                    <h3>Administrator</h3>
                     <ul>
+                        <li><a href="@routes.UserController.users">User list</a></li>
+                    </ul>
+                }
+                @if(user.nonEmpty) {
+                    <h3></h3>
+                    <ul>
+                        <li><a href="@routes.HomeController.index()">Homepage</a> </li>
                         <li><a href="@routes.LoginController.logout()">Logout</a> </li>
                     </ul>
                     Logged as @request.session.get("email")

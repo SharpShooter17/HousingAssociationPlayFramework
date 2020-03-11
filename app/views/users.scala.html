@@ -1,0 +1,32 @@
+@import model.domain.User
+@(users: Iterable[User])(implicit request: RequestHeader, authenticated: User)
+
+@main("User list") {
+    @layout("Users", style = "scala", user = Some(authenticated)) {
+        <h3>Users</h3>
+        <hr />
+        <table>
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>Last name</td>
+                    <td>Email</td>
+                    <td>Telephone</td>
+                    <td>Roles</td>
+                    <td>Enabled</td>
+                </tr>
+                @for(user <- users) {
+                    <tr>
+                        <td>@user.firstName</td>
+                        <td>@user.lastName</td>
+                        <td>@user.email</td>
+                        <td>@user.telephone</td>
+                        <td>Roles</td>
+                        <td>@user.enabled</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+}
