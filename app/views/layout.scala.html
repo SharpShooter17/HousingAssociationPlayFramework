@@ -1,0 +1,34 @@
+@(message: String, style: String = "scala")(content: Html)(implicit request: RequestHeader)
+
+    @defining(play.core.PlayVersion.current) { version =>
+
+        <section id="top">
+            <div class="wrapper">
+                <h1><a href="https://playframework.com/documentation/@version/Home">@message</a></h1>
+            </div>
+        </section>
+
+        <div id="content" class="wrapper doc">
+            <article>
+            @content
+            </article>
+
+            <aside>
+                <h3>Menu</h3>
+                <ul>
+                    <li><a href="https://playframework.com/documentation/@version">Documentation</a></li>
+                    <li><a href="https://playframework.com/documentation/@version/api/@style/index.html">Browse the @{
+                        style.capitalize
+                    } API</a></li>
+                </ul>
+                @if(request.session.get("email").nonEmpty) {
+                    <hr />
+                    <ul>
+                        <li><a href="@routes.LoginController.logout()">Logout</a> </li>
+                    </ul>
+                    Logged as @request.session.get("email")
+                }
+            </aside>
+
+        </div>
+    }

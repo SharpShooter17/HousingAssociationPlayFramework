@@ -1,0 +1,16 @@
+@(loginForm: Form[LoginForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Login") {
+
+    @layout(message = "Enter your email and password to login", style = "scala") {
+
+        @helper.form(action = routes.LoginController.validateLogin) {
+            @helper.CSRF.formField
+            @helper.inputText(loginForm("Email"))
+            @helper.inputPassword(loginForm("Password"))
+            <div class="button">
+                <button type="submit">Login</button>
+            </div>
+        }
+    }
+}
