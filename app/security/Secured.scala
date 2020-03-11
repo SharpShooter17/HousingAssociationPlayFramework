@@ -1,25 +1,27 @@
 package security
 
 import controllers.routes
+import dao.UserDAO
 import model.User
 import play.api.mvc._
 
 trait Secured {
   self: AbstractController =>
 
-  def email(request: RequestHeader): Option[String] = request.session.get("email")
+  private def email(request: RequestHeader): Option[String] = request.session.get("email")
 
-  def onUnauthorized(request: RequestHeader): Result = Results.Redirect(routes.LoginController.login())
+  private def onUnauthorized(request: RequestHeader): Result = Results.Redirect(routes.LoginController.login())
 
-  def withAuth(f: => String => Request[AnyContent] => Result): EssentialAction = {
+  private def withAuth(f: => String => Request[AnyContent] => Result): EssentialAction = {
     Security.Authenticated[String](email, onUnauthorized) { userEmail =>
       Action(request => f(userEmail)(request))
     }
   }
 
-  def withUser(f: User => Request[AnyContent] => Result): EssentialAction = withAuth { email =>
+  def withUser(f: User => Request[AnyContent] => Result)
+              (implicit userDAO: UserDAO): EssentialAction = withAuth { email =>
     implicit request =>
-      Option(User(email, "pass")).map { user =>
+      userDAO.findByEmail(email).map { user =>
         f(user)(request)
       }.getOrElse(onUnauthorized(request))
   }

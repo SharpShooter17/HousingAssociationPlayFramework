@@ -14,6 +14,7 @@ libraryDependencies ++= Seq( jdbc , ehcache , ws , specs2 % Test , guice )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
 
-libraryDependencies ++=Seq("com.typesafe.play" %% "play" % "2.7.3")
-// https://mvnrepository.com/artifact/org.postgresql/postgresql
+libraryDependencies += "com.typesafe.play" %% "play" % "2.7.3"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.2.10"
+libraryDependencies += "com.typesafe.play" %% "play-slick" % "4.0.0"
+libraryDependencies += "org.mindrot" % "jbcrypt" % "0.3m"

@@ -1,12 +1,15 @@
 package controllers
 
+import dao.UserDAO
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
+import security.PasswordService
 
 @Singleton
-class LoginController @Inject()(cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
+class LoginController @Inject()(userDAO: UserDAO,
+                                cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
 
   private val email = "Email"
   private val password = "Password"
@@ -25,13 +28,17 @@ class LoginController @Inject()(cc: MessagesControllerComponents) extends Messag
     postVals.map { args =>
       val emailValue = args.getOrElse(email, Seq.empty).headOption.getOrElse("")
       val passwordValue = args.getOrElse(password, Seq.empty).headOption.getOrElse("")
-
-      if (emailValue == "admin@example.com" && passwordValue == "password") {
-        Redirect(routes.HomeController.index())
-          .withSession("email" -> emailValue)
-      } else {
-        Redirect(routes.LoginController.login())
-          .flashing("error" -> "Invalid email or password")
+      userDAO.findByEmail(emailValue) match {
+        case Some(user) =>
+          if (PasswordService.checkPassword(passwordValue, user.password)) {
+            Redirect(routes.HomeController.index()).withSession(
+              "email" -> user.email,
+              "id" -> user.id.toString
+            )
+          } else {
+            Redirect(routes.LoginController.login()).flashing("error" -> "Invalid email or password")
+          }
+        case None => Redirect(routes.LoginController.login()).flashing("error" -> "User with given email does not exists")
       }
     }.getOrElse(Redirect(routes.LoginController.login()))
   }
