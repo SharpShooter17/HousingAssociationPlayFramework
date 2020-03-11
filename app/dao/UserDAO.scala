@@ -4,8 +4,10 @@ import java.util.concurrent.TimeUnit
 
 import javax.inject.{Inject, Singleton}
 import model.domain.User
+import model.form.UserForm
 import model.row.{RoleRow, UserRoleRow, UserRow}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import security.PasswordService
 import slick.jdbc.JdbcProfile
 
 import scala.collection.immutable
@@ -24,7 +26,19 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  def insert(user: UserRow): Future[Int] = db.run(users += user)
+  def insert(user: UserForm): Future[Int] = {
+    val session = db.createSession()
+    val userRow = UserRow(
+      email = user.email,
+      firstName = user.firstName,
+      password = PasswordService.createPassword(user.password),
+      lastName = user.lastName,
+      telephone = user.telephone
+    )
+    val result = db.run(users += userRow)
+    session.close()
+    result
+  }
 
   def findByEmail(email: String): Option[User] = {
     val future = db.run(getUserQuery(Option(email)).result).map(mapUser)
@@ -56,7 +70,7 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     usersWithRoles.map {
       case (user, roles) =>
         User(
-          id = user.id,
+          id = user.id.getOrElse(-1),
           email = user.email,
           firstName = user.firstName,
           lastName = user.lastName,

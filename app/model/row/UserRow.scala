@@ -2,12 +2,12 @@ package model.row
 
 import java.sql.Date
 
-case class UserRow(id: Long,
+case class UserRow(id: Option[Long] = None,
                    email: String,
-                   enabled: Boolean,
+                   enabled: Boolean = false,
                    firstName: String,
                    password: String,
                    lastName: String,
                    telephone: String,
-                   token: Option[String],
-                   tokenExpirationDate: Option[Date])
+                   token: Option[String] = None,
+                   tokenExpirationDate: Option[Date] = None)

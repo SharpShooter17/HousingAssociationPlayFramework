@@ -2,6 +2,7 @@ package controllers
 
 import dao.UserDAO
 import javax.inject.{Inject, Singleton}
+import model.form.LoginForm
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
@@ -47,5 +48,3 @@ class LoginController @Inject()(userDAO: UserDAO,
   }
 
 }
-
-case class LoginForm(email: String, password: String)
