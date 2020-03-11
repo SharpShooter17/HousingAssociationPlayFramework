@@ -2,7 +2,7 @@ package security
 
 import controllers.routes
 import dao.UserDAO
-import model.User
+import model.domain.User
 import play.api.mvc._
 
 trait Secured {

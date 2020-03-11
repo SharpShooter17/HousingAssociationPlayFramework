@@ -1,9 +1,27 @@
-@(msg: String)(implicit request: RequestHeader)
+@import model.domain.User
+@(user: User)(implicit request: RequestHeader)
 
 @main("Homepage") {
 
     @layout("Welcome in Our Housing Association!", style = "scala") {
-        <p></p>
+        <h3>User details</h3>
+        <hr />
+        <ul>
+            <li>Full name: @user.firstName @user.lastName</li>
+            <li>Email: @user.email</li>
+            <li>Telephone: @user.telephone</li>
+            <li>Roles:
+                 @for(role <- user.roles) {
+                    @role,
+                }
+            </li>
+        </ul>
+
+        <h3>Yours bills</h3>
+        <hr />
+
+        <h3>Yours apartments</h3>
+        <hr />
     }
 
 }

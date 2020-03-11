@@ -1,10 +1,10 @@
 package dao
 
-import java.sql.Date
 import java.util.concurrent.TimeUnit
 
-import javax.inject.Inject
-import model.User
+import javax.inject.{Inject, Singleton}
+import model.domain.User
+import model.row.UserRow
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 
@@ -12,42 +12,56 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.postfixOps
 
+@Singleton
 class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
-                       (implicit executionContext: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
+                       (implicit executionContext: ExecutionContext) extends Tables with HasDatabaseConfigProvider[JdbcProfile] {
 
   import profile.api._
 
-  private val users = TableQuery[UserTable]
+  def all(implicit dbSession: Session = db.createSession()): Future[Seq[UserRow]] = db.run(users.result)
 
-  def all(implicit dbSession: Session = db.createSession()): Future[Seq[User]] = db.run(users.result)
-
-  def insert(user: User): Future[Int] = db.run(users += user)
+  def insert(user: UserRow): Future[Int] = db.run(users += user)
 
   def findByEmail(email: String): Option[User] = {
-    val future = db.run(users.filter(_.email === email).result.headOption)
-    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+    val feature = db.run(getUserQuery(Option(email)).result)
+      .map { data =>
+        val byUser = data.groupBy(_._1._1)
+        val usersWithRoles = byUser.map(entry => entry._1 -> entry._2.map(_._2.`type`))
+        usersWithRoles.map {
+          case (user, roles) =>
+            User(
+              id = user.id,
+              email = user.email,
+              firstName = user.firstName,
+              lastName = user.lastName,
+              telephone = user.telephone,
+              roles = roles.toSet,
+              enabled = user.enabled,
+              hashPassword = user.password,
+              token = user.token,
+              tokenExpirationDate = user.tokenExpirationDate
+            )
+        }.headOption
+      }
+
+    Await.result(feature, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  private class UserTable(tag: Tag) extends Table[User](tag, "user_t") {
-    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+  private def getUserQuery(maybeEmail: Option[String] = None) = {
+    val userQuery = maybeEmail match {
+      case None => users
+      case Some(email) => users.filter(_.email === email)
+    }
 
-    def email = column[String]("email", O.Unique)
+    val withUserRolesQuery = for {
+      (user, role) <- userQuery.join(userRoles).on((u, r) => u.id === r.userId)
+    } yield (user, role)
 
-    def enabled = column[Boolean]("enabled")
+    val withRoles = for {
+      (userRole, role) <- withUserRolesQuery.join(roles).on(_._2.roleId === _.id)
+    } yield (userRole, role)
 
-    def firstName = column[String]("first_name")
-
-    def password = column[String]("password")
-
-    def lastName = column[String]("last_name")
-
-    def telephone = column[String]("telephone")
-
-    def token = column[Option[String]]("token")
-
-    def tokenExpirationDate = column[Option[Date]]("token_expiration_date")
-
-    override def * = (id, email, enabled, firstName, password, lastName, telephone, token, tokenExpirationDate) <> (User.tupled, User.unapply)
+    withRoles
   }
 
 }

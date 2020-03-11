@@ -13,7 +13,7 @@ class HomeController @Inject()(cc: ControllerComponents)
 
   def index: EssentialAction = withUser { user =>
     implicit request =>
-      Ok(views.html.index(""))
+      Ok(views.html.index(user))
   }
 
 }
