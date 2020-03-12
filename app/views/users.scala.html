@@ -1,6 +1,6 @@
 @import model.domain.User
 @import model.form.UserForm
-@(users: Iterable[User], userForm: Form[UserForm])(implicit request: RequestHeader, authenticated: User)
+@(users: Iterable[User], userForm: Form[UserForm])(implicit request: RequestHeader, authenticated: User, messagesProvider: MessagesProvider)
 
 @main("User list") {
     @layout("Users", style = "scala", user = Some(authenticated)) {
@@ -8,10 +8,12 @@
         <h3>Add user</h3>
         @helper.form(action = routes.UserController.addUser) {
             @helper.CSRF.formField
-            @helper.inputText(loginForm("Email"))
-            @helper.inputPassword(loginForm("Password"))
+            @helper.inputText(userForm("Name"))
+            @helper.inputText(userForm("Surname"))
+            @helper.inputText(userForm("Telephone"))
+            @helper.inputText(userForm("Email"))
             <div class="button">
-                <button type="submit">Login</button>
+                <button type="submit">Add user</button>
             </div>
         }
 

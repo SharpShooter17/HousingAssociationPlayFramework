@@ -1,42 +1,51 @@
 package controllers
 
 import dao.UserDAO
+import exceptions.AppException
 import javax.inject.{Inject, Singleton}
 import model.form.UserForm
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc.{AbstractController, ControllerComponents, EssentialAction}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, EssentialAction, MessagesAbstractController, MessagesControllerComponents, Request}
 import security.Secured
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents)
-                              (implicit userDAO: UserDAO, executionContext: ExecutionContext) extends AbstractController(cc) with Secured {
+                              (implicit userDAO: UserDAO, executionContext: ExecutionContext)
+  extends AbstractController(cc)
+    with I18nSupport
+    with Secured {
 
   val userForm: Form[UserForm] = Form(mapping(
     "Name" -> text,
     "Surname" -> text,
     "Telephone" -> text,
     "Email" -> email,
-    "Roles" -> set(text),
-    "Password" -> text(8))(UserForm.apply)(UserForm.unapply))
+    "Roles" -> set(text))(UserForm.apply)(UserForm.unapply))
 
-  def users: EssentialAction = isAdministrator { implicit user =>
+  def users = isAdministrator { implicit admin =>
     implicit request =>
       Ok(views.html.users(userDAO.all(), userForm))
   }
 
-  def addUser = isAdministrator { implicit user =>
+  def addUser: EssentialAction = isAdministrator { implicit admin =>
     implicit request =>
       val postVals = request.body.asFormUrlEncoded
-      postVals.map { args =>
-        val emailValue = args.getOrElse("Email", Seq.empty).headOption.getOrElse("")
-        userDAO.insert(UserForm(
-          // TODO
-        ))
-      }
-      users()
+      val form = postVals.map { args =>
+        UserForm(
+          firstName = args.getOrElse("Name", Seq.empty).headOption.getOrElse(""),
+          lastName = args.getOrElse("Surname", Seq.empty).headOption.getOrElse(""),
+          telephone = args.getOrElse("Telephone", Seq.empty).headOption.getOrElse(""),
+          email = args.getOrElse("Email", Seq.empty).headOption.getOrElse(""),
+        )
+      }.getOrElse(throw AppException())
+
+      userDAO.insert(form)
+      //TODO Send email to user - set password and activate account
+      Ok(views.html.users(userDAO.all(), userForm))
   }
 
 }

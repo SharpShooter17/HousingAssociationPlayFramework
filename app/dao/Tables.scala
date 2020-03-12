@@ -28,7 +28,8 @@ trait Tables {
   lazy val addresses = TableQuery[AddressTable]
 
   class UserTable(tag: Tag) extends Table[UserRow](tag, "user_t") {
-    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+
+    def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
 
     def email = column[String]("email", O.Unique)
 
@@ -36,7 +37,7 @@ trait Tables {
 
     def firstName = column[String]("first_name")
 
-    def password = column[String]("password")
+    def password = column[Option[String]]("password")
 
     def lastName = column[String]("last_name")
 

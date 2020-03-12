@@ -11,11 +11,11 @@ case class User(id: Long,
                 telephone: String,
                 roles: Set[String] = Set.empty,
                 enabled: Boolean,
-                hashPassword: String,
+                hashPassword: Option[String] = None,
                 token: Option[String],
                 tokenExpirationDate: Option[Date]) {
 
-  def checkPassword(candidate: String): Boolean = PasswordService.checkPassword(candidate, hashPassword)
+  def checkPassword(candidate: String): Boolean = PasswordService.checkPassword(candidate, hashPassword.getOrElse(""))
 
   lazy val isAdministrator: Boolean = roles.contains(Role.administrator)
 

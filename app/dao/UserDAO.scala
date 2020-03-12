@@ -7,12 +7,11 @@ import model.domain.User
 import model.form.UserForm
 import model.row.{RoleRow, UserRoleRow, UserRow}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import security.PasswordService
 import slick.jdbc.JdbcProfile
 
 import scala.collection.immutable
 import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
 
 @Singleton
@@ -26,18 +25,18 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  def insert(user: UserForm): Future[Int] = {
-    val session = db.createSession()
+  private def insertQuery() = users returning users.map(_.id) into ((user, id) => user.copy(id = id))
+
+  def insert(user: UserForm): UserRow = {
     val userRow = UserRow(
       email = user.email,
       firstName = user.firstName,
-      password = PasswordService.createPassword(user.password),
       lastName = user.lastName,
       telephone = user.telephone
     )
-    val result = db.run(users += userRow)
-    session.close()
-    result
+    val userId = insertQuery += userRow
+    val future = db.run(userId)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
   def findByEmail(email: String): Option[User] = {
@@ -56,17 +55,17 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
 
   private def joinRoles(userQuery: Query[UserTable, UserRow, Seq]) = {
     val withUserRolesQuery = for {
-      (user, role) <- userQuery.join(userRoles).on((u, r) => u.id === r.userId)
+      (user, role) <- userQuery.joinLeft(userRoles).on((u, r) => u.id === r.userId)
     } yield (user, role)
 
     for {
-      (userRole, role) <- withUserRolesQuery.join(roles).on(_._2.roleId === _.id)
+      (userRole, role) <- withUserRolesQuery.joinLeft(roles).on(_._2.map(_.roleId) === _.id)
     } yield (userRole, role)
   }
 
-  private def mapUser(user: Seq[((UserRow, UserRoleRow), RoleRow)]): immutable.Iterable[User] = {
+  private def mapUser(user: Seq[((UserRow, Option[UserRoleRow]), Option[RoleRow])]): immutable.Iterable[User] = {
     val byUser = user.groupBy(_._1._1)
-    val usersWithRoles = byUser.map(entry => entry._1 -> entry._2.map(_._2.`type`))
+    val usersWithRoles = byUser.map(entry => entry._1 -> entry._2.flatMap(_._2.map(_.`type`)))
     usersWithRoles.map {
       case (user, roles) =>
         User(
