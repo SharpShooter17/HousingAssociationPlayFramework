@@ -1,4 +1,4 @@
-package service
+package services
 
 import dao.UserDAO
 import javax.inject.{Inject, Singleton}

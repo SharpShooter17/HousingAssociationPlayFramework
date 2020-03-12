@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents, EssentialAction}
 import security.Secured
-import service.HousingAssociationService
+import services.HousingAssociationService
 
 import scala.concurrent.ExecutionContext
 
