@@ -9,11 +9,12 @@ import play.api.data.Forms._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents, EssentialAction}
 import security.Secured
+import service.HousingAssociationService
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class UserController @Inject()(cc: ControllerComponents)
+class UserController @Inject()(cc: ControllerComponents, service: HousingAssociationService)
                               (implicit userDAO: UserDAO, executionContext: ExecutionContext)
   extends AbstractController(cc)
     with I18nSupport
@@ -50,9 +51,7 @@ class UserController @Inject()(cc: ControllerComponents)
           roles = roles
         )
       }.getOrElse(throw AppException())
-
-      userDAO.insert(form)
-      //TODO Send email to user - set password and activate account
+      service.addUser(form)
       Ok(views.html.users(userDAO.all(), userForm))
   }
 
