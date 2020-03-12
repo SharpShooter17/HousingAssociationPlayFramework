@@ -2,6 +2,7 @@ package dao
 
 import java.util.concurrent.TimeUnit
 
+import exceptions.AppException
 import javax.inject.{Inject, Singleton}
 import model.domain.User
 import model.form.UserForm
@@ -15,7 +16,7 @@ import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
 
 @Singleton
-class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
+class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, roleDAO: RoleDAO, userRoleDAO: UserRoleDAO)
                        (implicit executionContext: ExecutionContext) extends Tables with HasDatabaseConfigProvider[JdbcProfile] {
 
   import profile.api._
@@ -36,7 +37,11 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     )
     val userId = insertQuery += userRow
     val future = db.run(userId)
-    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+    val newUser = Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+    roleDAO.findByRole(user.roles)
+      .map(role => UserRoleRow(newUser.id.getOrElse(throw AppException()), role.id))
+      .foreach(userRoleDAO.insert)
+    newUser
   }
 
   def findByEmail(email: String): Option[User] = {

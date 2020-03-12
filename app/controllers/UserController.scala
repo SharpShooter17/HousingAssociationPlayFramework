@@ -40,6 +40,7 @@ class UserController @Inject()(cc: ControllerComponents)
           lastName = args.getOrElse("Surname", Seq.empty).headOption.getOrElse(""),
           telephone = args.getOrElse("Telephone", Seq.empty).headOption.getOrElse(""),
           email = args.getOrElse("Email", Seq.empty).headOption.getOrElse(""),
+          roles = Set("ADMINISTRATOR", "USER")
         )
       }.getOrElse(throw AppException())
 
