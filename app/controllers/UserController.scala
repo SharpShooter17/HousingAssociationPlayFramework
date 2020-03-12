@@ -7,7 +7,7 @@ import model.form.UserForm
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, EssentialAction, MessagesAbstractController, MessagesControllerComponents, Request}
+import play.api.mvc.{AbstractController, ControllerComponents, EssentialAction}
 import security.Secured
 
 import scala.concurrent.ExecutionContext
@@ -35,18 +35,29 @@ class UserController @Inject()(cc: ControllerComponents)
     implicit request =>
       val postVals = request.body.asFormUrlEncoded
       val form = postVals.map { args =>
+        val isAdministrator = args.getOrElse("isAdministrator", Seq.empty).headOption.getOrElse("false").toBoolean
+        val isModerator = args.getOrElse("isModerator", Seq.empty).headOption.getOrElse("false").toBoolean
+        val isUser = args.getOrElse("isUser", Seq.empty).headOption.getOrElse("false").toBoolean
+        val roles: Set[String] = setIfTrue(isAdministrator, "ADMINISTRATOR") ++
+          setIfTrue(isModerator, "MODERATOR") ++
+          setIfTrue(isUser, "USER")
+
         UserForm(
           firstName = args.getOrElse("Name", Seq.empty).headOption.getOrElse(""),
           lastName = args.getOrElse("Surname", Seq.empty).headOption.getOrElse(""),
           telephone = args.getOrElse("Telephone", Seq.empty).headOption.getOrElse(""),
           email = args.getOrElse("Email", Seq.empty).headOption.getOrElse(""),
-          roles = Set("ADMINISTRATOR", "USER")
+          roles = roles
         )
       }.getOrElse(throw AppException())
 
       userDAO.insert(form)
       //TODO Send email to user - set password and activate account
       Ok(views.html.users(userDAO.all(), userForm))
+  }
+
+  private def setIfTrue(expression: Boolean, item: String): Set[String] = {
+    if (expression) Set(item) else Set.empty
   }
 
 }

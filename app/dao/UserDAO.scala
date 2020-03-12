@@ -30,7 +30,7 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
 
   def insert(user: UserForm): UserRow = {
     val userRow = UserRow(
-      email = user.email,
+      email = user.email.toLowerCase,
       firstName = user.firstName,
       lastName = user.lastName,
       telephone = user.telephone
@@ -45,7 +45,7 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
   }
 
   def findByEmail(email: String): Option[User] = {
-    val future = db.run(getUserQuery(Option(email)).result).map(mapUser)
+    val future = db.run(getUserQuery(Option(email.toLowerCase)).result).map(mapUser)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS)).headOption
   }
 

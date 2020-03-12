@@ -12,6 +12,9 @@
             @helper.inputText(userForm("Surname"))
             @helper.inputText(userForm("Telephone"))
             @helper.inputText(userForm("Email"))
+            @helper.checkbox(userForm("isUser"))
+            @helper.checkbox(userForm("isModerator"))
+            @helper.checkbox(userForm("isAdministrator"))
             <div class="button">
                 <button type="submit">Add user</button>
             </div>
