@@ -98,9 +98,9 @@ trait Tables {
 
     def number = column[Long]("number")
 
-    def block_id = column[Long]("block_id")
+    def blockId = column[Long]("block_id")
 
-    override def * = (id, number, block_id) <> (ApartmentRow.tupled, ApartmentRow.unapply)
+    override def * = (id, number, blockId) <> (ApartmentRow.tupled, ApartmentRow.unapply)
   }
 
   class ApartmentOccupantTable(tag: Tag) extends Table[ApartmentOccupantRow](tag, "apartment_occupant_t") {

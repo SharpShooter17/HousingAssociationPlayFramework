@@ -3,6 +3,7 @@ package controllers
 import dao.UserDAO
 import exceptions.AppException
 import javax.inject.{Inject, Singleton}
+import model.domain.Role
 import model.form.UserForm
 import play.api.data.Form
 import play.api.data.Forms._
@@ -27,7 +28,7 @@ class UserController @Inject()(cc: ControllerComponents, service: HousingAssocia
     "Email" -> email,
     "Roles" -> set(text))(UserForm.apply)(UserForm.unapply))
 
-  def users = isAdministrator { implicit admin =>
+  def users: EssentialAction = isAdministrator { implicit admin =>
     implicit request =>
       Ok(views.html.users(userDAO.all(), userForm))
   }
@@ -39,9 +40,8 @@ class UserController @Inject()(cc: ControllerComponents, service: HousingAssocia
         val isAdministrator = args.getOrElse("isAdministrator", Seq.empty).headOption.getOrElse("false").toBoolean
         val isModerator = args.getOrElse("isModerator", Seq.empty).headOption.getOrElse("false").toBoolean
         val isUser = args.getOrElse("isUser", Seq.empty).headOption.getOrElse("false").toBoolean
-        val roles: Set[String] = setIfTrue(isAdministrator, "ADMINISTRATOR") ++
-          setIfTrue(isModerator, "MODERATOR") ++
-          setIfTrue(isUser, "USER")
+        val roles: Set[String] = setIfTrue(isAdministrator, Role.administrator) ++
+          setIfTrue(isModerator, Role.moderator) ++ setIfTrue(isUser, Role.user)
 
         UserForm(
           firstName = args.getOrElse("Name", Seq.empty).headOption.getOrElse(""),

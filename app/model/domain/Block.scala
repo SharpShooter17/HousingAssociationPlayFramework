@@ -1,7 +1,7 @@
 package model.domain
 
-import model.row.{AddressRow, ApartmentRow}
+import model.row.AddressRow
 
 case class Block(id: Long,
                  address: AddressRow,
-                 apartments: Set[ApartmentRow] = Set.empty)
+                 apartments: Set[Apartment] = Set.empty)

@@ -1,0 +1,25 @@
+@import model.domain.User
+@import model.domain.Block
+@(blocks: Iterable[Block])(implicit request: RequestHeader, admin: User)
+
+@main("Homepage") {
+    @layout("Blocks", style = "scala", user = Some(admin)) {
+        <h3>Blocks</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Id</td>
+                    <td>Address</td>
+                    <td>Apartments</td>
+                </tr>
+            @for(block <- blocks) {
+                <tr>
+                    <td>@block.id</td>
+                    <td>@block.address.zipCode @block.address.street @block.address.number, @block.address.city</td>
+                    <td>@block.apartments.size</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}

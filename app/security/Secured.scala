@@ -14,14 +14,14 @@ trait Secured {
 
   private def accessNotAllowed(request: RequestHeader) : Result = ???
 
-  private def withAuth(f: => String => Request[AnyContent] => Result) = {
+  private def withAuth(f: => String => Request[AnyContent] => Result): EssentialAction = {
     Security.Authenticated[String](email, onUnauthorized) { userEmail =>
       Action(request => f(userEmail)(request))
     }
   }
 
   def withUser(f: User => Request[AnyContent] => Result)
-              (implicit userDAO: UserDAO) = withAuth { email =>
+              (implicit userDAO: UserDAO): EssentialAction = withAuth { email =>
     implicit request =>
       userDAO.findByEmail(email).map { user =>
         f(user)(request)
@@ -29,7 +29,7 @@ trait Secured {
   }
 
   def isAdministrator(f: User => Request[AnyContent] => Result)
-                     (implicit userDAO: UserDAO) = withUser { user =>
+                     (implicit userDAO: UserDAO): EssentialAction = withUser { user =>
     implicit request =>
       if (user.isAdministrator) {
         f(user)(request)
