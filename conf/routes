@@ -24,4 +24,4 @@ POST        /block/:blockId/addApartment           controllers.BlockController.a
 
 # Apartment pages
 GET         /apartment/:apartmentId                controllers.ApartmentController.apartment(apartmentId: Long)
-GET         /apartment/:apartmentId/addBill        controllers.ApartmentController.addBill(apartmentId: Long)
+POST        /apartment/:apartmentId/addBill        controllers.ApartmentController.addBill(apartmentId: Long)

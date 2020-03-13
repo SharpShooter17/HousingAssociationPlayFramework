@@ -1,6 +1,7 @@
 @import model.domain.User
 @import model.domain.Apartment
 @import model.form.BillForm
+@import views.html.helper.options
 @(apartment: Apartment, billForm: Form[BillForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
 
 @main("Apartment - " + apartment.number) {
@@ -11,7 +12,11 @@
             @helper.CSRF.formField
             @helper.inputText(billForm("Amount"))
             @helper.inputDate(billForm("Date"))
-            @helper.inputText(billForm("Type"))
+            @helper.select(
+                billForm("Type"),
+                Seq(("ELECTRICITY", "Electricity"),("GAS", "Gas"),("HOT_WATER", "Hot water"),("COLD_WATER", "Cold water"), ("SEWAGE", "Sewage"), ("HEATING", "Heating"), ("REPAIR_FUND", "Repair fund")),
+                '_label -> "Bill type",
+                '_default -> "-----")
             <div class="button">
                 <button type="submit">Add Bill</button>
             </div>
