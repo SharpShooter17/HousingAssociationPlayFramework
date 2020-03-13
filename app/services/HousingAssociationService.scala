@@ -1,6 +1,8 @@
 package services
 
 import java.sql.Date
+import java.time.LocalDate
+import java.util.UUID
 
 import dao._
 import javax.inject.{Inject, Singleton}
@@ -13,16 +15,22 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
                                           blockDAO: BlockDAO,
                                           apartmentDAO: ApartmentDAO,
                                           billDAO: BillDAO,
-                                          apartmentOccupantDAO: ApartmentOccupantDAO) {
+                                          apartmentOccupantDAO: ApartmentOccupantDAO,
+                                          mailSenderService: MailSenderService) {
+
+  private val daysToTokenExpiration = 7
+
   def addUser(form: UserForm): Unit = {
     val userRow = UserRow(
       email = form.email.toLowerCase,
       firstName = form.firstName,
       lastName = form.lastName,
-      telephone = form.telephone
+      telephone = form.telephone,
+      token = Some(UUID.randomUUID.toString),
+      tokenExpirationDate = Some(new Date(LocalDate.now.plusDays(daysToTokenExpiration).toEpochDay * 24 * 60 * 60 * 1000))
     )
     val user = userDAO.insert(userRow, form.roles)
-    //TODO Send email to user - set password and activate account
+    mailSenderService.sendEmail(user)
   }
 
   def findBlocks(id: Option[Long] = None): Iterable[Block] = blockDAO.find(id)
