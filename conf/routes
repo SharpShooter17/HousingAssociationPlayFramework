@@ -21,3 +21,6 @@ GET         /blocks                             controllers.BlockController.bloc
 POST        /addBlock                           controllers.BlockController.addBlock
 GET         /block/:blockId                     controllers.BlockController.block(blockId: Long)
 POST        /block/:blockId/addApartment        controllers.BlockController.addApartment(blockId: Long)
+
+# Apartment pages
+GET         /apartment/:apartmentId             controllers.ApartmentController.apartment(apartmentId: Long)

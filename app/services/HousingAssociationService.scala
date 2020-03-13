@@ -42,6 +42,10 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     )
   }
 
+  def findApartment(id: Long): Apartment = {
+    apartmentDAO.findApartment(id).head
+  }
+
   def findUserApartments(user: User): Iterable[Apartment] = {
     ???
   }
