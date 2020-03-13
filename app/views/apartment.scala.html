@@ -2,7 +2,7 @@
 @import model.domain.Apartment
 @(apartment: Apartment)(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
 
-@main("Homepage") {
+@main("Apartment - " + apartment.number) {
     @layout("Apartment", "scala", Some(user)) {
         <h3>Bills</h3>
         <table>
@@ -15,7 +15,7 @@
                 @for(bill <- apartment.bills) {
                     <tr>
                         <td>@bill.amount</td>
-                        <td>@bill.`type`</td>
+                        <td>@bill.billType</td>
                         <td>@bill.date</td>
                     </tr>
                 }

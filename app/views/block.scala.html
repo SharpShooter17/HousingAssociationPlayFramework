@@ -3,7 +3,7 @@
 @import model.form.ApartmentForm
 @(block: Block, apartmentForm: Form[ApartmentForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, admin: User)
 
-@main("Homepage") {
+@main(s"Block - ${block.addressToString}") {
     @layout("Block", "scala", Some(admin)) {
         <h3>Add apartment</h3>
         @helper.form(action = routes.BlockController.addApartment(block.id)) {
@@ -25,7 +25,7 @@
             @for(apartment <- block.apartments) {
                 <tr>
                     <td><a href="@routes.ApartmentController.apartment(apartment.id)">@apartment.id</a></td>
-                    <td>@block.address.zipCode @block.address.street @block.address.number, @block.address.city</td>
+                    <td>@block.addressToString</td>
                     <td>@apartment.number</td>
                 </tr>
             }
