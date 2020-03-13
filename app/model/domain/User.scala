@@ -21,4 +21,6 @@ case class User(id: Long,
 
   lazy val isModerator: Boolean = roles.contains(Role.moderator)
 
+  lazy val isUser: Boolean = roles.contains(Role.user)
+
 }

@@ -1,9 +1,8 @@
 package controllers
 
 import dao.UserDAO
-import exceptions.AppException
 import javax.inject.{Inject, Singleton}
-import model.form.BillForm
+import model.form.{BillForm, OccupantForm}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
@@ -28,21 +27,42 @@ class ApartmentController @Inject()(cc: ControllerComponents,
     "Type" -> nonEmptyText
   )(BillForm.apply)(BillForm.unapply))
 
+  val occupantForm: Form[OccupantForm] = Form(mapping(
+    "Id" -> nonEmptyText
+  )(OccupantForm.apply)(OccupantForm.unapply))
+
   def apartment(id: Long): EssentialAction = isAdministrator { implicit admin =>
     implicit request =>
-      Ok(views.html.apartment(service.findApartment(id), billForm))
+      Ok(views.html.apartment(service.findApartment(id), billForm, occupantForm, occupantList))
   }
 
-  def addBill(apartmentId: Long) = isModerator { implicit moderator => implicit request =>
-    billForm.bindFromRequest.fold(
+  def addBill(apartmentId: Long): EssentialAction = isModerator { implicit moderator =>
+    implicit request =>
+      billForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.apartment(service.findApartment(apartmentId), formWithErrors, occupantForm, occupantList))
+        },
+        billData => {
+          service.addBill(apartmentId, billData)
+          Ok(views.html.apartment(service.findApartment(apartmentId), billForm, occupantForm, occupantList))
+        }
+      )
+  }
+
+  def addOccupant(apartmentId: Long): EssentialAction = isModerator { implicit moederator =>implicit request =>
+    occupantForm.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.apartment(service.findApartment(apartmentId), formWithErrors))
+        BadRequest(views.html.apartment(service.findApartment(apartmentId), billForm, formWithErrors, occupantList))
       },
-      billData => {
-        service.addBill(apartmentId, billData)
-        Ok(views.html.apartment(service.findApartment(apartmentId), billForm))
+      occupantData => {
+        service.addOccupant(apartmentId, occupantData.id.toLong)
+        Ok(views.html.apartment(service.findApartment(apartmentId), billForm, occupantForm, occupantList))
       }
     )
+  }
+
+  private def occupantList = {
+    userDAO.all().filter(_.isUser).map(user => (user.id.toString, user.email)).toSeq
   }
 
 }

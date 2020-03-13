@@ -23,7 +23,6 @@ class LoginController @Inject()(userDAO: UserDAO,
   }
 
   def validateLogin: Action[AnyContent] = Action { implicit request =>
-
     loginForm.bindFromRequest.fold(
       formWithErrors => {
         BadRequest(views.html.login(formWithErrors))

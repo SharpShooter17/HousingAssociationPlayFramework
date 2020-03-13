@@ -2,7 +2,11 @@
 @import model.domain.Apartment
 @import model.form.BillForm
 @import views.html.helper.options
-@(apartment: Apartment, billForm: Form[BillForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
+@import model.form.OccupantForm
+@(apartment: Apartment,
+        billForm: Form[BillForm],
+        occupantForm: Form[OccupantForm],
+        occupantsList: Seq[(String, String)])(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
 
 @main("Apartment - " + apartment.number) {
     @layout("Apartment", "scala", Some(user)) {
@@ -25,6 +29,19 @@
                 '_default -> "-----")
             <div class="button">
                 <button type="submit">Add Bill</button>
+            </div>
+        }
+
+        <h3>Add occupant</h3>
+        @helper.form(action = routes.ApartmentController.addOccupant(apartment.id)) {
+            @helper.CSRF.formField
+            @helper.select(
+                billForm("Id"),
+                occupantsList,
+                '_label -> "Occupant",
+                '_default -> "-----")
+            <div class="button">
+                <button type="submit">Add occupant</button>
             </div>
         }
 
