@@ -1,0 +1,35 @@
+@import model.domain.User
+@import model.domain.Block
+@import model.form.ApartmentForm
+@(block: Block, apartmentForm: Form[ApartmentForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, admin: User)
+
+@main("Homepage") {
+    @layout("Block", "scala", Some(admin)) {
+        <h3>Add apartment</h3>
+        @helper.form(action = routes.BlockController.addApartment(block.id)) {
+            @helper.CSRF.formField
+            @helper.inputText(apartmentForm("Number"))
+            <div class="button">
+                <button type="submit">Add apartment</button>
+            </div>
+        }
+
+        <h3>Apartments</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Id</td>
+                    <td>Address</td>
+                    <td>Number</td>
+                </tr>
+            @for(apartment <- block.apartments) {
+                <tr>
+                    <td>@apartment.id</td>
+                    <td>@block.address.zipCode @block.address.street @block.address.number, @block.address.city</td>
+                    <td>@apartment.number</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}

@@ -94,7 +94,7 @@ trait Tables {
 
   class ApartmentTable(tag: Tag) extends Table[ApartmentRow](tag: Tag, "apartment_t") {
 
-    def id = column[Long]("id", O.AutoInc, O.Unique, O.PrimaryKey)
+    def id = column[Option[Long]]("id", O.AutoInc, O.Unique, O.PrimaryKey)
 
     def number = column[Long]("number")
 

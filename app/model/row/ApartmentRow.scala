@@ -1,5 +1,5 @@
 package model.row
 
-case class ApartmentRow(id: Long,
+case class ApartmentRow(id: Option[Long] = None,
                         number: Long,
-                        block_id: Long)
+                        blockId: Long)

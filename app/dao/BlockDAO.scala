@@ -80,7 +80,7 @@ class BlockDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider,
   }
 
   private def mapApartmentRow(row: ApartmentRow) = Apartment(
-    id = row.id,
+    id = row.id.getOrElse(-1L),
     number = row.number
   )
 

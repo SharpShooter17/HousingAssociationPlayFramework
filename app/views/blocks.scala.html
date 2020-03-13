@@ -27,7 +27,7 @@
                 </tr>
             @for(block <- blocks) {
                 <tr>
-                    <td>@block.id</td>
+                    <td><a href="@routes.BlockController.block(block.id)">@block.id</a></td>
                     <td>@block.address.zipCode @block.address.street @block.address.number, @block.address.city</td>
                     <td>@block.apartments.size</td>
                 </tr>

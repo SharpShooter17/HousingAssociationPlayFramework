@@ -1,14 +1,15 @@
 package services
 
-import dao.{BlockDAO, UserDAO}
+import dao.{ApartmentDAO, BlockDAO, UserDAO}
 import javax.inject.{Inject, Singleton}
 import model.domain.{Apartment, Bill, Block, User}
-import model.form.{BlockForm, UserForm}
-import model.row.{AddressRow, BlockRow, UserRow}
+import model.form.{ApartmentForm, BlockForm, UserForm}
+import model.row.{AddressRow, ApartmentRow, BlockRow, UserRow}
 
 @Singleton
 class HousingAssociationService @Inject()(userDAO: UserDAO,
-                                          blockDAO: BlockDAO) {
+                                          blockDAO: BlockDAO,
+                                          apartmentDAO: ApartmentDAO) {
   def addUser(form: UserForm): Unit = {
     val userRow = UserRow(
       email = form.email.toLowerCase,
@@ -20,8 +21,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     //TODO Send email to user - set password and activate account
   }
 
-  def findAllBlocks(): Iterable[Block] = blockDAO.find()
-
+  def findBlocks(id: Option[Long] = None): Iterable[Block] = blockDAO.find(id)
 
   def addBlock(blockData: BlockForm): BlockRow = {
     val address = AddressRow(
@@ -31,6 +31,15 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
       city = blockData.city
     )
     blockDAO.insert(address)
+  }
+
+  def addApartment(blockId: Long, apartmentData: ApartmentForm) = {
+    apartmentDAO.insert(
+      ApartmentRow(
+        blockId = blockId,
+        number = apartmentData.number
+      )
+    )
   }
 
   def findUserApartments(user: User): Iterable[Apartment] = {

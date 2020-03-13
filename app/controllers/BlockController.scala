@@ -1,8 +1,9 @@
 package controllers
 
 import dao.UserDAO
+import exceptions.AppException
 import javax.inject.{Inject, Singleton}
-import model.form.BlockForm
+import model.form.{ApartmentForm, BlockForm}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
@@ -28,21 +29,44 @@ class BlockController @Inject()(cc: ControllerComponents,
     "City" -> text(1)
   )(BlockForm.apply)(BlockForm.unapply))
 
+  val apartmentForm: Form[ApartmentForm] = Form(mapping(
+    "Number" -> longNumber
+  )(ApartmentForm.apply)(ApartmentForm.unapply))
+
   def blocks: EssentialAction = isAdministrator { implicit admin =>
     implicit request =>
-      Ok(views.html.blocks(service.findAllBlocks(), blockForm))
+      Ok(views.html.blocks(service.findBlocks(), blockForm))
   }
 
-  def addBlock: EssentialAction = isAdministrator { implicit admin =>implicit request =>
-    blockForm.bindFromRequest.fold(
-      formWithErrors => {
-        BadRequest(views.html.blocks(service.findAllBlocks(), formWithErrors))
-      },
-      blockData => {
-        service.addBlock(blockData)
-        Ok(views.html.blocks(service.findAllBlocks(), blockForm))
-      }
-    )
+  def addBlock(): EssentialAction = isAdministrator { implicit admin =>
+    implicit request =>
+      blockForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.blocks(service.findBlocks(), formWithErrors))
+        },
+        blockData => {
+          service.addBlock(blockData)
+          Ok(views.html.blocks(service.findBlocks(), blockForm))
+        }
+      )
+  }
+
+  def block(blockId: Long): EssentialAction = isAdministrator { implicit admin =>
+    implicit request =>
+      Ok(views.html.block(service.findBlocks(Some(blockId)).headOption.getOrElse(throw AppException()), apartmentForm))
+  }
+
+  def addApartment(blockId: Long): EssentialAction = isAdministrator { implicit admin =>
+    implicit request =>
+      apartmentForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.block(service.findBlocks(Some(blockId)).headOption.getOrElse(throw AppException()), formWithErrors))
+        },
+        apartmentData => {
+          service.addApartment(blockId, apartmentData)
+          Ok(views.html.block(service.findBlocks(Some(blockId)).headOption.getOrElse(throw AppException()), apartmentForm))
+        }
+      )
   }
 
 }
