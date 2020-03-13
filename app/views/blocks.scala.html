@@ -3,7 +3,7 @@
 @import model.form.BlockForm
 @(blocks: Iterable[Block], blockForm: Form[BlockForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, admin: User)
 
-@main("Homepage") {
+@main("Block List") {
     @layout("Blocks", "scala", Some(admin)) {
         <h3>Add block</h3>
         @helper.form(action = routes.BlockController.addBlock) {

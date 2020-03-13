@@ -1,9 +1,22 @@
 @import model.domain.User
 @import model.domain.Apartment
-@(apartment: Apartment)(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
+@import model.form.BillForm
+@(apartment: Apartment, billForm: Form[BillForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
 
 @main("Apartment - " + apartment.number) {
     @layout("Apartment", "scala", Some(user)) {
+
+        <h3>Add bill</h3>
+        @helper.form(action = routes.ApartmentController.addBill(apartment.id)) {
+            @helper.CSRF.formField
+            @helper.inputText(billForm("Amount"))
+            @helper.inputDate(billForm("Date"))
+            @helper.inputText(billForm("Type"))
+            <div class="button">
+                <button type="submit">Add Bill</button>
+            </div>
+        }
+
         <h3>Bills</h3>
         <table>
             <tbody>

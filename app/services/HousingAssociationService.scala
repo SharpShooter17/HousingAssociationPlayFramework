@@ -1,15 +1,18 @@
 package services
 
-import dao.{ApartmentDAO, BlockDAO, UserDAO}
+import java.sql.Date
+
+import dao.{ApartmentDAO, BillDAO, BlockDAO, UserDAO}
 import javax.inject.{Inject, Singleton}
 import model.domain.{Apartment, Bill, Block, User}
-import model.form.{ApartmentForm, BlockForm, UserForm}
-import model.row.{AddressRow, ApartmentRow, BlockRow, UserRow}
+import model.form.{ApartmentForm, BillForm, BlockForm, UserForm}
+import model.row.{AddressRow, ApartmentRow, BillRow, BlockRow, UserRow}
 
 @Singleton
 class HousingAssociationService @Inject()(userDAO: UserDAO,
                                           blockDAO: BlockDAO,
-                                          apartmentDAO: ApartmentDAO) {
+                                          apartmentDAO: ApartmentDAO,
+                                          billDAO: BillDAO) {
   def addUser(form: UserForm): Unit = {
     val userRow = UserRow(
       email = form.email.toLowerCase,
@@ -44,6 +47,16 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
 
   def findApartment(id: Long): Apartment = {
     apartmentDAO.findApartment(id).head
+  }
+
+  def addBill(apartmentId: Long, billData: BillForm) = {
+    val billRow = BillRow(
+      apartmentId = apartmentId,
+      date = new Date(billData.date.getTime),
+      amount = billData.amount.doubleValue(),
+      billType = billData.billType
+    )
+    billDAO.insert(billRow)
   }
 
   def findUserApartments(user: User): Iterable[Apartment] = {

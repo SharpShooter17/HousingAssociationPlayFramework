@@ -37,4 +37,14 @@ trait Secured {
         accessNotAllowed(request)
       }
   }
+
+  def isModerator(f: User => Request[AnyContent] => Result)
+                     (implicit userDAO: UserDAO): EssentialAction = withUser { user =>
+    implicit request =>
+      if (user.isModerator) {
+        f(user)(request)
+      } else {
+        accessNotAllowed(request)
+      }
+  }
 }

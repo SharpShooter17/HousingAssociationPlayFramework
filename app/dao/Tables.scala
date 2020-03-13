@@ -79,7 +79,7 @@ trait Tables {
 
   class BillTable(tag: Tag) extends Table[BillRow](tag: Tag, "bill_t") {
 
-    def id = column[Long]("id", O.AutoInc, O.Unique, O.PrimaryKey)
+    def id = column[Option[Long]]("id", O.AutoInc, O.Unique, O.PrimaryKey)
 
     def amount = column[Double]("amount")
 
