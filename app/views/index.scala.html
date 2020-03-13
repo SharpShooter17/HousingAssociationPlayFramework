@@ -1,5 +1,7 @@
 @import model.domain.User
-@(user: User)(implicit request: RequestHeader)
+@import model.domain.Apartment
+@import model.row.BillRow
+@(user: User, apartments: Iterable[Apartment], bills: Iterable[BillRow])(implicit request: RequestHeader)
 
 @main("Homepage") {
     @layout("Welcome in Our Housing Association!", style = "scala", user = Some(user)) {
@@ -14,8 +16,38 @@
 
         <h3>Yours bills</h3>
         <hr />
+        <table>
+            <tbody>
+                <tr>
+                    <td>Amount</td>
+                    <td>Type</td>
+                    <td>Date</td>
+                </tr>
+                @for(bill <- bills) {
+                    <tr>
+                        <td>@bill.amount</td>
+                        <td>@bill.billType</td>
+                        <td>@bill.date</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
         <h3>Yours apartments</h3>
         <hr />
+        <table>
+            <tbody>
+                <tr>
+                    <td>Id</td>
+                    <td>Number</td>
+                </tr>
+                @for(apartment <- apartments) {
+                    <tr>
+                        <td><a href="@routes.ApartmentController.apartment(apartment.id)">@apartment.id</a></td>
+                        <td>@apartment.number</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
 }

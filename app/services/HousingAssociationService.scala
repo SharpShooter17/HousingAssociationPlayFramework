@@ -2,11 +2,11 @@ package services
 
 import java.sql.Date
 
-import dao.{ApartmentDAO, ApartmentOccupantDAO, BillDAO, BlockDAO, UserDAO}
+import dao._
 import javax.inject.{Inject, Singleton}
-import model.domain.{Apartment, Bill, Block, User}
+import model.domain.{Apartment, Block, User}
 import model.form.{ApartmentForm, BillForm, BlockForm, UserForm}
-import model.row.{AddressRow, ApartmentOccupantRow, ApartmentRow, BillRow, BlockRow, UserRow}
+import model.row._
 
 @Singleton
 class HousingAssociationService @Inject()(userDAO: UserDAO,
@@ -27,7 +27,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
 
   def findBlocks(id: Option[Long] = None): Iterable[Block] = blockDAO.find(id)
 
-  def addBlock(blockData: BlockForm): BlockRow = {
+  def addBlock(blockData: BlockForm): Unit = {
     val address = AddressRow(
       zipCode = blockData.zipCode,
       street = blockData.street,
@@ -37,7 +37,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     blockDAO.insert(address)
   }
 
-  def addApartment(blockId: Long, apartmentData: ApartmentForm) = {
+  def addApartment(blockId: Long, apartmentData: ApartmentForm): Unit = {
     apartmentDAO.insert(
       ApartmentRow(
         blockId = blockId,
@@ -50,7 +50,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     apartmentDAO.findApartment(id).head
   }
 
-  def addBill(apartmentId: Long, billData: BillForm) = {
+  def addBill(apartmentId: Long, billData: BillForm): Unit = {
     val billRow = BillRow(
       apartmentId = apartmentId,
       date = new Date(billData.date.getTime),
@@ -64,16 +64,12 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     apartmentOccupantDAO.insert(ApartmentOccupantRow(apartmentId, userId))
   }
 
-  def removeOccupant(apartmentId: Long, occupantId: Long) = {
+  def removeOccupant(apartmentId: Long, occupantId: Long): Unit = {
     apartmentOccupantDAO.delete(apartmentId, occupantId)
   }
 
   def findUserApartments(user: User): Iterable[Apartment] = {
-    ???
-  }
-
-  def findUserBills(user: User): Iterable[Bill] = {
-    ???
+    apartmentDAO.findApartmentsByUserId(user.id)
   }
 
 }

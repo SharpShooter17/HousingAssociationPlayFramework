@@ -6,6 +6,7 @@
 @main("Block List") {
     @layout("Blocks", "scala", Some(admin)) {
         <h3>Add block</h3>
+        <hr />
         @helper.form(action = routes.BlockController.addBlock) {
             @helper.CSRF.formField
             @helper.inputText(blockForm("ZipCode"))
@@ -18,6 +19,7 @@
         }
 
         <h3>Blocks</h3>
+        <hr />
         <table>
             <tbody>
                 <tr>

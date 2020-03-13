@@ -12,6 +12,7 @@
     @layout("Apartment", "scala", Some(user)) {
 
         <h3>Add bill</h3>
+        <hr />
         @helper.form(action = routes.ApartmentController.addBill(apartment.id)) {
             @helper.CSRF.formField
             @helper.inputText(billForm("Amount"))
@@ -33,6 +34,7 @@
         }
 
         <h3>Add occupant</h3>
+        <hr />
         @helper.form(action = routes.ApartmentController.addOccupant(apartment.id)) {
             @helper.CSRF.formField
             @helper.select(
@@ -46,6 +48,7 @@
         }
 
         <h3>Bills</h3>
+        <hr />
         <table>
             <tbody>
                 <tr>
@@ -64,6 +67,7 @@
         </table>
 
         <h3>Occupants</h3>
+        <hr />
         <table>
             <tbody>
                 <tr>

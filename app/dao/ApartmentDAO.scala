@@ -30,23 +30,34 @@ class ApartmentDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  private def getQuery(maybeId: Option[Long] = None) = {
+  def findApartmentsByUserId(userId: Long) : Iterable[Apartment] = {
+    val filteredQuery = getQuery(userId = Some(userId))
+    val future = db.run(filteredQuery.result).map(mapApartment)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+  }
+
+  private def getQuery(maybeId: Option[Long] = None, userId: Option[Long] = None) = {
     val query = maybeId match {
       case None => apartments
       case Some(id) => apartments.filter(_.id === id)
     }
 
-    val withOccupants = joinOccupants(query)
+    val withOccupants = joinOccupants(query, userId)
     joinBills(withOccupants)
   }
 
-  private def joinOccupants(query: Query[ApartmentTable, ApartmentRow, Seq]) = {
+  private def joinOccupants(query: Query[ApartmentTable, ApartmentRow, Seq], userId: Option[Long] = None) = {
     val apartmentOccupants: Query[(ApartmentTable, Rep[Option[ApartmentOccupantTable]]), (ApartmentRow, Option[ApartmentOccupantRow]), Seq] = for {
       (apartment, apartmentOccupants) <- query.joinLeft(apartmentsOccupants).on((a, ao) => a.id === ao.apartmentId)
     } yield (apartment, apartmentOccupants)
 
+    val withFilter = userId match {
+      case None => apartmentOccupants
+      case Some(id) => apartmentOccupants.filter((_._2.map(_.occupantId === id)))
+    }
+
     for {
-      (apartmentOccupants, occupants) <- apartmentOccupants.joinLeft(users)
+      (apartmentOccupants, occupants) <- withFilter.joinLeft(users)
         .on((apartment, o) => apartment._2.map(apartmentOccupant => apartmentOccupant.occupantId) === o.id)
     } yield (apartmentOccupants, occupants)
   }

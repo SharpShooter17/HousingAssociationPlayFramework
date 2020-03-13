@@ -6,6 +6,7 @@
     @layout("Users", style = "scala", user = Some(authenticated)) {
 
         <h3>Add user</h3>
+        <hr />
         @helper.form(action = routes.UserController.addUser) {
             @helper.CSRF.formField
             @helper.inputText(userForm("Name"))
