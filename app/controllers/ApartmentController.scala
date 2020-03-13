@@ -49,19 +49,25 @@ class ApartmentController @Inject()(cc: ControllerComponents,
       )
   }
 
-  def addOccupant(apartmentId: Long): EssentialAction = isModerator { implicit moederator =>implicit request =>
-    occupantForm.bindFromRequest.fold(
-      formWithErrors => {
-        BadRequest(views.html.apartment(service.findApartment(apartmentId), billForm, formWithErrors, occupantList))
-      },
-      occupantData => {
-        service.addOccupant(apartmentId, occupantData.id.toLong)
-        Ok(views.html.apartment(service.findApartment(apartmentId), billForm, occupantForm, occupantList))
-      }
-    )
+  def addOccupant(apartmentId: Long): EssentialAction = isModerator { implicit moederator =>
+    implicit request =>
+      occupantForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.apartment(service.findApartment(apartmentId), billForm, formWithErrors, occupantList))
+        },
+        occupantData => {
+          service.addOccupant(apartmentId, occupantData.id.toLong)
+          Ok(views.html.apartment(service.findApartment(apartmentId), billForm, occupantForm, occupantList))
+        }
+      )
   }
 
-  private def occupantList = {
+  def removeOccupant(apartmentId: Long, occupantId: Long): EssentialAction = isModerator { implicit moderator =>implicit request =>
+    service.removeOccupant(apartmentId, occupantId)
+    Ok(views.html.apartment(service.findApartment(apartmentId), billForm, occupantForm, occupantList))
+  }
+
+  private def occupantList: Seq[(String, String)] = {
     userDAO.all().filter(_.isUser).map(user => (user.id.toString, user.email)).toSeq
   }
 

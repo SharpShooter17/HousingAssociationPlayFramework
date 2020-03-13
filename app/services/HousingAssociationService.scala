@@ -64,6 +64,10 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     apartmentOccupantDAO.insert(ApartmentOccupantRow(apartmentId, userId))
   }
 
+  def removeOccupant(apartmentId: Long, occupantId: Long) = {
+    apartmentOccupantDAO.delete(apartmentId, occupantId)
+  }
+
   def findUserApartments(user: User): Iterable[Apartment] = {
     ???
   }

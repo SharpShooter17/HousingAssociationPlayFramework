@@ -20,4 +20,10 @@ class ApartmentOccupantDAO @Inject()(protected val dbConfigProvider: DatabaseCon
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
+  def delete(apartmentId: Long, occupantId: Long) = {
+    val filtered = apartmentsOccupants.filter(row => row.occupantId === occupantId && row.apartmentId === apartmentId)
+    val future = db.run(filtered.delete)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+  }
+
 }

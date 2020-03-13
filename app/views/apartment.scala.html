@@ -70,12 +70,21 @@
                     <td>Full Name</td>
                     <td>Email</td>
                     <td>Telephone</td>
+                    <td>Action</td>
                 </tr>
             @for(occupant <- apartment.occupants) {
                 <tr>
                     <td>@occupant.firstName @occupant.lastName</td>
                     <td>@occupant.email</td>
                     <td>@occupant.telephone</td>
+                    <td>
+                        @helper.form(action = routes.ApartmentController.removeOccupant(apartment.id, occupant.id.getOrElse(-1L))) {
+                            @helper.CSRF.formField
+                            <div class="button">
+                                <button type="submit">Remove</button>
+                            </div>
+                        }
+                    </td>
                 </tr>
             }
             </tbody>
