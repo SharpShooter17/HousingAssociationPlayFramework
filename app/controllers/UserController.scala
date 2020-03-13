@@ -22,10 +22,10 @@ class UserController @Inject()(cc: ControllerComponents, service: HousingAssocia
     with Secured {
 
   val userForm: Form[UserForm] = Form(mapping(
-    "Name" -> text,
-    "Surname" -> text,
-    "Telephone" -> text,
-    "Email" -> email,
+    "Name" -> nonEmptyText,
+    "Surname" -> nonEmptyText,
+    "Telephone" -> nonEmptyText,
+    "Email" -> nonEmptyText,
     "Roles" -> set(text))(UserForm.apply)(UserForm.unapply))
 
   def users: EssentialAction = isAdministrator { implicit admin =>

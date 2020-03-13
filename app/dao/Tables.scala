@@ -70,7 +70,7 @@ trait Tables {
 
   class BlockTable(tag: Tag) extends Table[BlockRow](tag, "block_t") {
 
-    def id = column[Long]("id", O.AutoInc, O.Unique, O.PrimaryKey)
+    def id = column[Option[Long]]("id", O.AutoInc, O.Unique, O.PrimaryKey)
 
     def addressId = column[Long]("address_id")
 
@@ -114,7 +114,7 @@ trait Tables {
 
   class AddressTable(tag: Tag) extends Table[AddressRow](tag, "address_t") {
 
-    def id = column[Long]("id", O.AutoInc, O.Unique, O.PrimaryKey)
+    def id = column[Option[Long]]("id", O.AutoInc, O.Unique, O.PrimaryKey)
 
     def city = column[String]("city")
 

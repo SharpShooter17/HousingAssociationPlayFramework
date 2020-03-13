@@ -12,13 +12,22 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{Await, ExecutionContext}
 
 @Singleton
-class BlockDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
+class BlockDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, addressDAO: AddressDAO)
                         (implicit executionContext: ExecutionContext) extends Tables with HasDatabaseConfigProvider[JdbcProfile] {
 
   import profile.api._
 
   def find(id: Option[Long] = None): Iterable[Block] = {
     val future = db.run(getBlockQuery(id).result).map(mapBlock)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+  }
+
+  private def insertQuery() = blocks returning blocks.map(_.id) into ((block, id) => block.copy(id = id))
+
+  def insert(address: AddressRow): BlockRow = {
+    val addressRow = addressDAO.insert(address)
+    val blockWithId = insertQuery() += BlockRow(addressId = addressRow.id.getOrElse(-1L))
+    val future = db.run(blockWithId)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
@@ -57,13 +66,13 @@ class BlockDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
         blockWithApartmentsAndAddress.flatMap { case (_, optApartment, _) =>
           optApartment
         },
-        blockWithApartmentsAndAddress.map { case (_, _, address) => address }.headOption.getOrElse(AddressRow(-1, "", "", "", ""))
+        blockWithApartmentsAndAddress.map { case (_, _, address) => address }.headOption.getOrElse(AddressRow())
       )
     }
 
     blockWithApartmentsAndAddress.map(item =>
       Block(
-        id = item.block.id,
+        id = item.block.id.getOrElse(-1L),
         address = item.address,
         apartments = item.apartments.map(mapApartmentRow).toSet
       )

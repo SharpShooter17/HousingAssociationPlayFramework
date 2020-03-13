@@ -1,9 +1,22 @@
 @import model.domain.User
 @import model.domain.Block
-@(blocks: Iterable[Block])(implicit request: RequestHeader, admin: User)
+@import model.form.BlockForm
+@(blocks: Iterable[Block], blockForm: Form[BlockForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, admin: User)
 
 @main("Homepage") {
-    @layout("Blocks", style = "scala", user = Some(admin)) {
+    @layout("Blocks", "scala", Some(admin)) {
+        <h3>Add block</h3>
+        @helper.form(action = routes.BlockController.addBlock) {
+            @helper.CSRF.formField
+            @helper.inputText(blockForm("ZipCode"))
+            @helper.inputText(blockForm("Street"))
+            @helper.inputText(blockForm("Number"))
+            @helper.inputText(blockForm("City"))
+            <div class="button">
+                <button type="submit">Add block</button>
+            </div>
+        }
+
         <h3>Blocks</h3>
         <table>
             <tbody>

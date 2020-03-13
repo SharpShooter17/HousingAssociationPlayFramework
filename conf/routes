@@ -18,3 +18,4 @@ POST        /addUser              controllers.UserController.addUser
 
 # Block pages
 GET         /blocks               controllers.BlockController.blocks
+POST        /addBlock             controllers.BlockController.addBlock
