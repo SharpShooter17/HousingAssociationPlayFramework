@@ -9,11 +9,7 @@
             <li>Full name: @user.firstName @user.lastName</li>
             <li>Email: @user.email</li>
             <li>Telephone: @user.telephone</li>
-            <li>Roles:
-                 @for(role <- user.roles) {
-                    @role,
-                }
-            </li>
+            <li>Roles: @user.roles.mkString(", ")</li>
         </ul>
 
         <h3>Yours bills</h3>

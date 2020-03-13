@@ -25,7 +25,7 @@ class UserController @Inject()(cc: ControllerComponents, service: HousingAssocia
     "Name" -> nonEmptyText,
     "Surname" -> nonEmptyText,
     "Telephone" -> nonEmptyText,
-    "Email" -> nonEmptyText,
+    "Email" -> email,
     "Roles" -> set(text))(UserForm.apply)(UserForm.unapply))
 
   def users: EssentialAction = isAdministrator { implicit admin =>
@@ -36,23 +36,22 @@ class UserController @Inject()(cc: ControllerComponents, service: HousingAssocia
   def addUser: EssentialAction = isAdministrator { implicit admin =>
     implicit request =>
       val postVals = request.body.asFormUrlEncoded
-      val form = postVals.map { args =>
+      val roles = postVals.map { args =>
         val isAdministrator = args.getOrElse("isAdministrator", Seq.empty).headOption.getOrElse("false").toBoolean
         val isModerator = args.getOrElse("isModerator", Seq.empty).headOption.getOrElse("false").toBoolean
         val isUser = args.getOrElse("isUser", Seq.empty).headOption.getOrElse("false").toBoolean
-        val roles: Set[String] = setIfTrue(isAdministrator, Role.administrator) ++
-          setIfTrue(isModerator, Role.moderator) ++ setIfTrue(isUser, Role.user)
-
-        UserForm(
-          firstName = args.getOrElse("Name", Seq.empty).headOption.getOrElse(""),
-          lastName = args.getOrElse("Surname", Seq.empty).headOption.getOrElse(""),
-          telephone = args.getOrElse("Telephone", Seq.empty).headOption.getOrElse(""),
-          email = args.getOrElse("Email", Seq.empty).headOption.getOrElse(""),
-          roles = roles
-        )
+        setIfTrue(isAdministrator, Role.administrator) ++ setIfTrue(isModerator, Role.moderator) ++ setIfTrue(isUser, Role.user)
       }.getOrElse(throw AppException())
-      service.addUser(form)
-      Ok(views.html.users(userDAO.all(), userForm))
+
+      userForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.users(userDAO.all(), formWithErrors))
+        },
+        userData => {
+          service.addUser(userData.copy(roles = roles))
+          Ok(views.html.users(userDAO.all(), userForm))
+        }
+      )
   }
 
   private def setIfTrue(expression: Boolean, item: String): Set[String] = {

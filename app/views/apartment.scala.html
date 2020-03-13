@@ -14,7 +14,13 @@
             @helper.inputDate(billForm("Date"))
             @helper.select(
                 billForm("Type"),
-                Seq(("ELECTRICITY", "Electricity"),("GAS", "Gas"),("HOT_WATER", "Hot water"),("COLD_WATER", "Cold water"), ("SEWAGE", "Sewage"), ("HEATING", "Heating"), ("REPAIR_FUND", "Repair fund")),
+                Seq(("ELECTRICITY", "Electricity"),
+                    ("GAS", "Gas"),
+                    ("HOT_WATER", "Hot water"),
+                    ("COLD_WATER", "Cold water"),
+                    ("SEWAGE", "Sewage"),
+                    ("HEATING", "Heating"),
+                    ("REPAIR_FUND", "Repair fund")),
                 '_label -> "Bill type",
                 '_default -> "-----")
             <div class="button">
