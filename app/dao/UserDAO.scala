@@ -18,11 +18,11 @@ import scala.language.postfixOps
 @Singleton
 class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, roleDAO: RoleDAO, userRoleDAO: UserRoleDAO)
                        (implicit executionContext: ExecutionContext) extends Tables with HasDatabaseConfigProvider[JdbcProfile] {
-
   import profile.api._
 
+
   def all(): Iterable[User] = {
-    val future = db.run(getUserQuery().result).map(mapUser)
+    val future = db.run(getUserQuery().result).map(mapRowToUser)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
@@ -38,8 +38,22 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
     newUser
   }
 
+  def update(user: User) : Unit = {
+    val row = mapUserToRow(user)
+    val query = users.filter(_.id === row.id).update(row)
+    val future = db.run(query)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
+  }
+
+  def findByToken(token: String): Option[User] = {
+    val query = users.filter(_.token === token)
+    val queryWithRoles = joinRoles(query)
+    val future = db.run(queryWithRoles.result).map(mapRowToUser)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS)).headOption
+  }
+
   def findByEmail(email: String): Option[User] = {
-    val future = db.run(getUserQuery(Option(email.toLowerCase)).result).map(mapUser)
+    val future = db.run(getUserQuery(Option(email.toLowerCase)).result).map(mapRowToUser)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS)).headOption
   }
 
@@ -62,7 +76,7 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
     } yield (userRole, role)
   }
 
-  private def mapUser(user: Seq[((UserRow, Option[UserRoleRow]), Option[RoleRow])]): immutable.Iterable[User] = {
+  private def mapRowToUser(user: Seq[((UserRow, Option[UserRoleRow]), Option[RoleRow])]): immutable.Iterable[User] = {
     val byUser = user.groupBy(_._1._1)
     val usersWithRoles = byUser.map(entry => entry._1 -> entry._2.flatMap(_._2.map(_.`type`)))
     usersWithRoles.map {
@@ -81,5 +95,17 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
         )
     }
   }
+
+  private def mapUserToRow(user: User) = UserRow(
+    id = Some(user.id),
+    email = user.email,
+    enabled = user.enabled,
+    firstName = user.firstName,
+    lastName = user.lastName,
+    password = user.hashPassword,
+    telephone = user.telephone,
+    token = user.token,
+    tokenExpirationDate = user.tokenExpirationDate
+  )
 
 }

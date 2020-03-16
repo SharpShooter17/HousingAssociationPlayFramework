@@ -5,10 +5,12 @@ import java.time.LocalDate
 import java.util.UUID
 
 import dao._
+import exceptions.AppException
 import javax.inject.{Inject, Singleton}
 import model.domain.{Apartment, Block, User}
-import model.form.{ApartmentForm, BillForm, BlockForm, UserForm}
+import model.form._
 import model.row._
+import security.PasswordService
 
 @Singleton
 class HousingAssociationService @Inject()(userDAO: UserDAO,
@@ -17,7 +19,6 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
                                           billDAO: BillDAO,
                                           apartmentOccupantDAO: ApartmentOccupantDAO,
                                           mailSenderService: MailSenderService) {
-
   private val daysToTokenExpiration = 7
 
   def addUser(form: UserForm): Unit = {
@@ -32,6 +33,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     val user = userDAO.insert(userRow, form.roles)
     mailSenderService.sendEmail(user)
   }
+
 
   def findBlocks(id: Option[Long] = None): Iterable[Block] = blockDAO.find(id)
 
@@ -78,6 +80,29 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
 
   def findUserApartments(user: User): Iterable[Apartment] = {
     apartmentDAO.findApartmentsByUserId(user.id)
+  }
+
+  private def findUserByToken(token: String): User = {
+    val user = userDAO.findByToken(token).getOrElse(throw AppException())
+    val currentDate = new Date(new java.util.Date().getTime)
+    if (user.tokenExpirationDate.exists(_.before(currentDate))) {
+      throw AppException()
+    }
+    user
+  }
+
+  def activate(data: UserActivationForm): Unit = {
+    val user = findUserByToken(data.token)
+    if (data.password == data.passwordConfirmation) {
+      val hashedPassword = PasswordService.createPassword(data.password)
+      val userWithPassword = user.copy(
+        hashPassword = Some(hashedPassword),
+        enabled = true,
+        token = None,
+        tokenExpirationDate = None
+      )
+      userDAO.update(userWithPassword)
+    }
   }
 
 }

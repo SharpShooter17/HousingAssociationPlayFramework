@@ -8,6 +8,8 @@ GET         /assets/*file                                 controllers.Assets.ver
 GET         /                                             controllers.LoginController.login
 POST        /validateLogin                                controllers.LoginController.validateLogin
 GET         /logout                                       controllers.LoginController.logout
+GET         /activation                                   controllers.LoginController.activation(token: String ?= "")
+POST        /activate                                     controllers.LoginController.activate
 
 # Homepage
 GET         /homepage                                     controllers.HomeController.index

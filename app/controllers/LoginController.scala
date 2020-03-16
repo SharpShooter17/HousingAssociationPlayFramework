@@ -1,22 +1,29 @@
 package controllers
 
 import dao.UserDAO
+import exceptions.AppException
 import javax.inject.{Inject, Singleton}
-import model.form.LoginForm
+import model.form.{LoginForm, UserActivationForm}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
+import services.HousingAssociationService
 
 @Singleton
 class LoginController @Inject()(userDAO: UserDAO,
+                                service: HousingAssociationService,
                                 cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
-
-  private val password = "Password"
 
   val loginForm: Form[LoginForm] = Form(mapping(
     "Email" -> email,
-    password -> text(8)
+    "Password" -> text(8)
   )(LoginForm.apply)(LoginForm.unapply))
+
+  val userActivationForm: Form[UserActivationForm] = Form(mapping(
+    "Token" -> nonEmptyText,
+    "Password" -> text(8),
+    "PasswordConfirmation" -> text(8)
+  )(UserActivationForm.apply)(UserActivationForm.unapply))
 
   def login: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.login(loginForm))
@@ -46,6 +53,22 @@ class LoginController @Inject()(userDAO: UserDAO,
 
   def logout: Action[AnyContent] = Action {
     Redirect(routes.LoginController.login()).withNewSession
+  }
+
+  def activation(token: String): Action[AnyContent] = Action { implicit request =>
+    Ok(views.html.activation(token, userActivationForm.fill(UserActivationForm(token = token, password = "", passwordConfirmation = ""))))
+  }
+
+  def activate: Action[AnyContent]  = Action { implicit  request =>
+    userActivationForm.bindFromRequest.fold(
+      formWithErrors => {
+        BadRequest(views.html.activation(formWithErrors.data("Token"), formWithErrors))
+      },
+      userActivationData => {
+        service.activate(userActivationData)
+        Redirect(routes.LoginController.login())
+      }
+    )
   }
 
 }

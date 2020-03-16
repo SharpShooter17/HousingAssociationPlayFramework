@@ -1,0 +1,19 @@
+@import model.form.UserActivationForm
+@(token: String, userActivationForm: Form[UserActivationForm])(implicit request: MessagesRequestHeader)
+
+@main("Activation") {
+    @layout("Activate your account", style = "scala") {
+        @helper.form(action = routes.LoginController.activate) {
+            @helper.CSRF.formField
+            @helper.inputText(userActivationForm("Token"))
+            @helper.inputPassword(userActivationForm("Password"))
+            @helper.inputPassword(
+                userActivationForm("PasswordConfirmation"),
+                'label -> "Password confirmation"
+            )
+            <div class="button">
+                <button type="submit">Activate</button>
+            </div>
+        }
+    }
+}
