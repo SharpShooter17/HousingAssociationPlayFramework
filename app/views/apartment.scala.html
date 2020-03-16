@@ -55,12 +55,14 @@
                     <td>Amount</td>
                     <td>Type</td>
                     <td>Date</td>
+                    <td>Download</td>
                 </tr>
                 @for(bill <- apartment.bills) {
                     <tr>
                         <td>@bill.amount</td>
                         <td>@bill.billType</td>
                         <td>@bill.date</td>
+                        <td><a href="@routes.ApartmentController.downloadBillInPdf(bill.id.getOrElse(-1L))">PDF</a></td>
                     </tr>
                 }
             </tbody>

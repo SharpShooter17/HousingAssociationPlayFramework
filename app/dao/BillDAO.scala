@@ -24,4 +24,10 @@ class BillDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
+  def find(id: Long): Option[BillRow] = {
+    val query = bills.filter(_.id === id)
+    val future = db.run(query.result)
+    Await.result(future, FiniteDuration(10, TimeUnit.SECONDS)).headOption
+  }
+
 }

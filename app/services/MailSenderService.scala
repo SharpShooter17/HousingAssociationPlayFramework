@@ -1,6 +1,6 @@
 package services
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import model.row.UserRow
 import play.api.libs.mailer.{Email, MailerClient}
 

@@ -31,3 +31,4 @@ GET         /apartment/:apartmentId                       controllers.ApartmentC
 POST        /apartment/:apartmentId/addBill               controllers.ApartmentController.addBill(apartmentId: Long)
 POST        /apartment/:apartmentId/addOccupant           controllers.ApartmentController.addOccupant(apartmentId: Long)
 POST        /apartment/:apartmentId/removeOccupant        controllers.ApartmentController.removeOccupant(apartmentId: Long, occupantId: Long)
+GET         /apartment/bill/:billId/download              controllers.ApartmentController.downloadBillInPdf(billId: Long)

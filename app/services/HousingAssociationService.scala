@@ -1,5 +1,6 @@
 package services
 
+import java.io.ByteArrayOutputStream
 import java.sql.Date
 import java.time.LocalDate
 import java.util.UUID
@@ -18,7 +19,8 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
                                           apartmentDAO: ApartmentDAO,
                                           billDAO: BillDAO,
                                           apartmentOccupantDAO: ApartmentOccupantDAO,
-                                          mailSenderService: MailSenderService) {
+                                          mailSenderService: MailSenderService,
+                                          pdfService: PdfService) {
   private val daysToTokenExpiration = 7
 
   def addUser(form: UserForm): Unit = {
@@ -34,8 +36,8 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     mailSenderService.sendEmail(user)
   }
 
-
   def findBlocks(id: Option[Long] = None): Iterable[Block] = blockDAO.find(id)
+
 
   def addBlock(blockData: BlockForm): Unit = {
     val address = AddressRow(
@@ -103,6 +105,11 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
       )
       userDAO.update(userWithPassword)
     }
+  }
+
+  def downloadBillPdf(billId: Long): ByteArrayOutputStream = {
+    val bill = billDAO.find(billId).getOrElse(throw AppException())
+    pdfService.createPdf(bill)
   }
 
 }
