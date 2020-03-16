@@ -1,18 +1,20 @@
 @import model.domain.User
 @import model.domain.Block
 @import model.form.ApartmentForm
-@(block: Block, apartmentForm: Form[ApartmentForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, admin: User)
+@(block: Block, apartmentForm: Form[ApartmentForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider, user: User)
 
 @main(s"Block - ${block.addressToString}") {
-    @layout("Block", "scala", Some(admin)) {
-        <h3>Add apartment</h3>
-        <hr />
-        @helper.form(action = routes.BlockController.addApartment(block.id)) {
-            @helper.CSRF.formField
-            @helper.inputText(apartmentForm("Number"))
-            <div class="button">
-                <button type="submit">Add apartment</button>
-            </div>
+    @layout("Block", "scala", Some(user)) {
+        @if(user.isAdministrator) {
+            <h3>Add apartment</h3>
+            <hr />
+            @helper.form(action = routes.BlockController.addApartment(block.id)) {
+                @helper.CSRF.formField
+                @helper.inputText(apartmentForm("Number"))
+                <div class="button">
+                    <button type="submit">Add apartment</button>
+                </div>
+            }
         }
 
         <h3>Apartments</h3>

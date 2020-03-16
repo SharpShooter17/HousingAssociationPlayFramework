@@ -31,7 +31,7 @@ class ApartmentController @Inject()(cc: ControllerComponents,
     "Id" -> nonEmptyText
   )(OccupantForm.apply)(OccupantForm.unapply))
 
-  def apartment(id: Long): EssentialAction = isAdministrator { implicit admin =>
+  def apartment(id: Long): EssentialAction = isModerator { implicit moderator =>
     implicit request =>
       Ok(views.html.apartment(service.findApartment(id), billForm, occupantForm, occupantList))
   }

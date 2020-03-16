@@ -33,7 +33,7 @@ class BlockController @Inject()(cc: ControllerComponents,
     "Number" -> longNumber
   )(ApartmentForm.apply)(ApartmentForm.unapply))
 
-  def blocks: EssentialAction = isAdministrator { implicit admin =>
+  def blocks: EssentialAction = isModerator { implicit moderator =>
     implicit request =>
       Ok(views.html.blocks(service.findBlocks(), blockForm))
   }
@@ -51,7 +51,7 @@ class BlockController @Inject()(cc: ControllerComponents,
       )
   }
 
-  def block(blockId: Long): EssentialAction = isAdministrator { implicit admin =>
+  def block(blockId: Long): EssentialAction = isModerator { implicit moderator =>
     implicit request =>
       Ok(views.html.block(service.findBlocks(Some(blockId)).headOption.getOrElse(throw AppException()), apartmentForm))
   }

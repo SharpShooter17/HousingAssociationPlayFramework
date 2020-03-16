@@ -14,11 +14,16 @@
             </article>
 
             <aside>
+                @if(user.exists(_.isModerator)) {
+                    <h3>Moderator</h3>
+                    <ul>
+                        <li><a href="@routes.BlockController.blocks">Block list</a></li>
+                    </ul>
+                }
                 @if(user.exists(_.isAdministrator)) {
                     <h3>Administrator</h3>
                     <ul>
                         <li><a href="@routes.UserController.users">User list</a></li>
-                        <li><a href="@routes.BlockController.blocks">Block list</a></li>
                     </ul>
                 }
                 @if(user.nonEmpty) {
