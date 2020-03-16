@@ -30,14 +30,12 @@ class PdfService {
             <tr>
               <td>Amount</td>
               <td>Date</td>
+              <td>Type</td>
             </tr>
             <tr>
-              <td>$
-                {bill.amount}
-              </td>
-              <td>$
-                {bill.date}
-              </td>
+              <td>{bill.amount}</td>
+              <td>{bill.date}</td>
+              <td>{bill.billType}</td>
             </tr>
           </table>
         </body>
