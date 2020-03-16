@@ -12,7 +12,7 @@ trait Secured {
 
   private def onUnauthorized(request: RequestHeader): Result = Results.Redirect(routes.LoginController.login())
 
-  private def accessNotAllowed(request: RequestHeader) : Result = ???
+  private def accessNotAllowed(request: RequestHeader) : Result = Results.Redirect(routes.ErrorController.accessDenied)
 
   private def withAuth(f: => String => Request[AnyContent] => Result): EssentialAction = {
     Security.Authenticated[String](email, onUnauthorized) { userEmail =>

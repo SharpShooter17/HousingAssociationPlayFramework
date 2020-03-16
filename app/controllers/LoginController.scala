@@ -1,7 +1,6 @@
 package controllers
 
 import dao.UserDAO
-import exceptions.AppException
 import javax.inject.{Inject, Singleton}
 import model.form.{LoginForm, UserActivationForm}
 import play.api.data.Form
@@ -59,7 +58,7 @@ class LoginController @Inject()(userDAO: UserDAO,
     Ok(views.html.activation(token, userActivationForm.fill(UserActivationForm(token = token, password = "", passwordConfirmation = ""))))
   }
 
-  def activate: Action[AnyContent]  = Action { implicit  request =>
+  def activate: Action[AnyContent] = Action { implicit request =>
     userActivationForm.bindFromRequest.fold(
       formWithErrors => {
         BadRequest(views.html.activation(formWithErrors.data("Token"), formWithErrors))

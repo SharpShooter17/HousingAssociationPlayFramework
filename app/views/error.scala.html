@@ -1,0 +1,8 @@
+@(title: String, message: String)(implicit request: RequestHeader)
+
+@main(title) {
+    @layout(title, style = "scala") {
+        <p>@message</p>
+        <p><a href="@routes.HomeController.index()">Take me back to homepage</a></p>
+    }
+}
