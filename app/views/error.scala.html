@@ -1,4 +1,4 @@
-@(title: String, message: String)(implicit request: RequestHeader)
+@(title: String, message: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main(title) {
     @layout(title, style = "scala") {

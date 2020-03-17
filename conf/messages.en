@@ -1,0 +1,31 @@
+header.page.login=Enter your email and password to login
+header.page.home=Welcome in Our Housing Association!
+
+header.section.user-details=User details
+header.section.yours-bills=Yours bills
+header.section.yours-apartments=Yours apartments
+
+label.password=Password
+label.email=Email
+label.full-name=Full name
+label.telephone=Telephone
+label.roles=Roles
+label.amount=Amount
+label.type=Type
+label.date=Date
+label.download=Download
+label.id=Id
+label.number=Number
+
+button.login=Login
+
+menu.header.administrator=Administrator
+menu.header.moderator=Moderator
+menu.header.language=Language
+menu.item.block-list=Block list
+menu.item.user-list=User list
+menu.item.homepage=Homepage
+menu.item.logout=Logout
+menu.item.pl=Polish
+menu.item.en=English
+menu.logged-as=Logged as

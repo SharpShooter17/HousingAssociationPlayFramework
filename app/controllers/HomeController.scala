@@ -2,6 +2,7 @@ package controllers
 
 import dao.UserDAO
 import javax.inject._
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 import security.Secured
 import services.HousingAssociationService
@@ -11,7 +12,10 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents,
                                service: HousingAssociationService)
-                              (implicit userDAO: UserDAO, executionContext: ExecutionContext) extends AbstractController(cc) with Secured {
+                              (implicit userDAO: UserDAO, executionContext: ExecutionContext)
+  extends AbstractController(cc)
+    with Secured
+    with I18nSupport {
 
   def index: EssentialAction = withUser { user =>
     implicit request =>

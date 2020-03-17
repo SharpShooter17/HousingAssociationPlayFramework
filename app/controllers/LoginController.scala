@@ -5,17 +5,18 @@ import javax.inject.{Inject, Singleton}
 import model.form.{LoginForm, UserActivationForm}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import services.HousingAssociationService
 
 @Singleton
 class LoginController @Inject()(userDAO: UserDAO,
                                 service: HousingAssociationService,
-                                cc: MessagesControllerComponents) extends MessagesAbstractController(cc) {
+                                cc: ControllerComponents) extends AbstractController(cc) with I18nSupport {
 
   val loginForm: Form[LoginForm] = Form(mapping(
-    "Email" -> email,
-    "Password" -> text(8)
+    "label.email" -> email,
+    "label.password" -> text(8)
   )(LoginForm.apply)(LoginForm.unapply))
 
   val userActivationForm: Form[UserActivationForm] = Form(mapping(

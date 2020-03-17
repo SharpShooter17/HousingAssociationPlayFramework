@@ -1,28 +1,28 @@
 @import model.domain.User
 @import model.domain.Apartment
 @import model.row.BillRow
-@(user: User, apartments: Iterable[Apartment], bills: Iterable[BillRow])(implicit request: RequestHeader)
+@(user: User, apartments: Iterable[Apartment], bills: Iterable[BillRow])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main("Homepage") {
-    @layout("Welcome in Our Housing Association!", style = "scala", user = Some(user)) {
-        <h3>User details</h3>
+    @layout(Messages("header.page.home"), style = "scala", user = Some(user)) {
+        <h3>@Messages("header.section.user-details")</h3>
         <hr />
         <ul>
-            <li>Full name: @user.firstName @user.lastName</li>
-            <li>Email: @user.email</li>
-            <li>Telephone: @user.telephone</li>
-            <li>Roles: @user.roles.mkString(", ")</li>
+            <li>@Messages("label.full-name"): @user.firstName @user.lastName</li>
+            <li>@Messages("label.email"): @user.email</li>
+            <li>@Messages("label.telephone"): @user.telephone</li>
+            <li>@Messages("label.roles"): @user.roles.mkString(", ")</li>
         </ul>
 
-        <h3>Yours bills</h3>
+        <h3>@Messages("header.section.yours-bills")</h3>
         <hr />
         <table>
             <tbody>
                 <tr>
-                    <td>Amount</td>
-                    <td>Type</td>
-                    <td>Date</td>
-                    <td>Download</td>
+                    <td>@Messages("label.amount")</td>
+                    <td>@Messages("label.type")</td>
+                    <td>@Messages("label.date")</td>
+                    <td>@Messages("label.download")</td>
                 </tr>
                 @for(bill <- bills) {
                     <tr>
@@ -35,13 +35,13 @@
             </tbody>
         </table>
 
-        <h3>Yours apartments</h3>
+        <h3>@Messages("header.section.yours-apartments")</h3>
         <hr />
         <table>
             <tbody>
                 <tr>
-                    <td>Id</td>
-                    <td>Number</td>
+                    <td>@Messages("label.id")</td>
+                    <td>@Messages("label.number")</td>
                 </tr>
                 @for(apartment <- apartments) {
                     <tr>

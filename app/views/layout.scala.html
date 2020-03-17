@@ -1,5 +1,5 @@
 @import model.domain.User
-@(message: String, style: String = "scala", user: Option[User] = None)(content: Html)(implicit request: RequestHeader)
+@(message: String, style: String = "scala", user: Option[User] = None)(content: Html)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
     @defining(play.core.PlayVersion.current) { version =>
         <section id="top">
@@ -10,31 +10,37 @@
 
         <div id="content" class="wrapper doc">
             <article>
-            @content
+                @content
             </article>
 
             <aside>
                 @if(user.exists(_.isModerator)) {
-                    <h3>Moderator</h3>
+                    <h3>@Messages("menu.header.moderator")</h3>
                     <ul>
-                        <li><a href="@routes.BlockController.blocks">Block list</a></li>
+                        <li><a href="@routes.BlockController.blocks">@Messages("menu.item.block-list")</a></li>
                     </ul>
                 }
                 @if(user.exists(_.isAdministrator)) {
-                    <h3>Administrator</h3>
+                    <h3>@Messages("menu.header.administrator")</h3>
                     <ul>
-                        <li><a href="@routes.UserController.users">User list</a></li>
+                        <li><a href="@routes.UserController.users">@Messages("menu.item.user-list")</a></li>
                     </ul>
                 }
                 @if(user.nonEmpty) {
                     <h3></h3>
                     <ul>
-                        <li><a href="@routes.HomeController.index()">Homepage</a> </li>
-                        <li><a href="@routes.LoginController.logout()">Logout</a> </li>
+                        <li><a href="@routes.HomeController.index()">@Messages("menu.item.homepage")</a> </li>
+                        <li><a href="@routes.LoginController.logout()">@Messages("menu.item.logout")</a> </li>
                     </ul>
-                    Logged as @request.session.get("email")
+                }
+                <h3>@Messages("menu.header.language")</h3>
+                <ul>
+                    <li><a href="@routes.I18nController.polish()">@Messages("menu.item.pl")</a> </li>
+                    <li><a href="@routes.I18nController.english()">@Messages("menu.item.en")</a> </li>
+                </ul>
+                @if(user.nonEmpty) {
+                    @Messages("menu.logged-as") @user.map(_.email).getOrElse("")
                 }
             </aside>
-
         </div>
     }

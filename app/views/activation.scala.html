@@ -1,5 +1,5 @@
 @import model.form.UserActivationForm
-@(token: String, userActivationForm: Form[UserActivationForm])(implicit request: MessagesRequestHeader)
+@(token: String, userActivationForm: Form[UserActivationForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main("Activation") {
     @layout("Activate your account", style = "scala") {

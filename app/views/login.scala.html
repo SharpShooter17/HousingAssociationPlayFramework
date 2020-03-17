@@ -1,14 +1,14 @@
 @import model.form.LoginForm
-@(loginForm: Form[LoginForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(loginForm: Form[LoginForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main("Login") {
-    @layout(message = "Enter your email and password to login", style = "scala") {
+    @layout(message = Messages("header.page.login"), style = "scala") {
         @helper.form(action = routes.LoginController.validateLogin) {
             @helper.CSRF.formField
-            @helper.inputText(loginForm("Email"))
-            @helper.inputPassword(loginForm("Password"))
+            @helper.inputText(loginForm("label.email"))
+            @helper.inputPassword(loginForm("label.password"))
             <div class="button">
-                <button type="submit">Login</button>
+                <button type="submit">@Messages("button.login")</button>
             </div>
         }
     }
