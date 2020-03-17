@@ -25,8 +25,8 @@ class ApartmentDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  def findApartment(id: Long): Iterable[Apartment] = {
-    val future = db.run(getQuery(Some(id)).result).map(mapApartment)
+  def findApartments(id: Option[Long] = None): Iterable[Apartment] = {
+    val future = db.run(getQuery(id).result).map(mapApartment)
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 

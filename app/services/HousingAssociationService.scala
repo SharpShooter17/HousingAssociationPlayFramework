@@ -21,6 +21,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
                                           apartmentOccupantDAO: ApartmentOccupantDAO,
                                           mailSenderService: MailSenderService,
                                           pdfService: PdfService) {
+
   private val daysToTokenExpiration = 7
 
   def addUser(form: UserForm): Unit = {
@@ -59,7 +60,7 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
   }
 
   def findApartment(id: Long): Apartment = {
-    apartmentDAO.findApartment(id).head
+    apartmentDAO.findApartments(Some(id)).head
   }
 
   def addBill(apartmentId: Long, billData: BillForm): Unit = {
@@ -110,6 +111,10 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
   def downloadBillPdf(billId: Long): ByteArrayOutputStream = {
     val bill = billDAO.find(billId).getOrElse(throw AppException())
     pdfService.createPdf(bill)
+  }
+
+  def allApartments(): Iterable[Apartment] = {
+    apartmentDAO.findApartments()
   }
 
 }
