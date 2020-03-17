@@ -6,12 +6,13 @@ import model.form.{LoginForm, UserActivationForm}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import services.HousingAssociationService
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request, RequestHeader}
+import services.{HousingAssociationService, ReCaptchaService}
 
 @Singleton
 class LoginController @Inject()(userDAO: UserDAO,
                                 service: HousingAssociationService,
+                                reCaptchaService: ReCaptchaService,
                                 cc: ControllerComponents) extends AbstractController(cc) with I18nSupport {
 
   val loginForm: Form[LoginForm] = Form(mapping(
@@ -60,15 +61,28 @@ class LoginController @Inject()(userDAO: UserDAO,
   }
 
   def activate: Action[AnyContent] = Action { implicit request =>
-    userActivationForm.bindFromRequest.fold(
-      formWithErrors => {
-        BadRequest(views.html.activation(formWithErrors.data("Token"), formWithErrors))
-      },
-      userActivationData => {
-        service.activate(userActivationData)
-        Redirect(routes.LoginController.login())
-      }
-    )
+    request.body.asFormUrlEncoded.get("g-recaptcha-response").headOption match {
+      case None => badRequestForActivation
+      case Some(recaptcha) =>
+        if (!reCaptchaService.verify(recaptcha)) {
+          badRequestForActivation
+        } else {
+          userActivationForm.bindFromRequest.fold(
+            formWithErrors => {
+              BadRequest(views.html.activation(formWithErrors.data("Token"), formWithErrors))
+            },
+            userActivationData => {
+              service.activate(userActivationData)
+              Redirect(routes.LoginController.login())
+            }
+          )
+        }
+    }
+  }
+
+  private def badRequestForActivation(implicit request: Request[_]) = {
+    val form = userActivationForm.bindFromRequest
+    BadRequest(views.html.activation(form.data("Token"), form))
   }
 
 }
