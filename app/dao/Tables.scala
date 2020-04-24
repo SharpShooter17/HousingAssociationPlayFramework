@@ -29,7 +29,7 @@ trait Tables {
 
   class UserTable(tag: Tag) extends Table[UserRow](tag, "user_t") {
 
-    def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
+    def id = column[Option[Long]]("id", O.AutoInc, O.Unique, O.PrimaryKey)
 
     def email = column[String]("email", O.Unique)
 

@@ -26,11 +26,12 @@ class UserDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, 
     Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
   }
 
-  private def insertQuery() = users returning users.map(_.id) into ((user, id) => user.copy(id = id))
+  private def insertQuery() =
+    users returning users.map(_.id) into ((user, id) => user.copy(id = id))
 
   def insert(user: UserRow, roles: Set[String]): UserRow = {
-    val userId = insertQuery += user
-    val future = db.run(userId)
+    val userWithId = insertQuery += user
+    val future = db.run(userWithId)
     val newUser = Await.result(future, FiniteDuration(10, TimeUnit.SECONDS))
     roleDAO.findByRole(roles)
       .map(role => UserRoleRow(newUser.id.getOrElse(throw AppException()), role.id))

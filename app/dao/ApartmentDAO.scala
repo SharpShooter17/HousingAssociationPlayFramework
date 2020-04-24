@@ -17,7 +17,8 @@ class ApartmentDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
 
   import profile.api._
 
-  private def insertQuery() = apartments returning apartments.map(_.id) into ((address, id) => address.copy(id = id))
+  private def insertQuery() =
+    apartments returning apartments.map(_.id) into ((address, id) => address.copy(id = id))
 
   def insert(row: ApartmentRow): ApartmentRow = {
     val apartmentWithId = insertQuery() += row
