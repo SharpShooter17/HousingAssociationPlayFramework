@@ -36,3 +36,6 @@ GET         /apartment/bill/:billId/download              controllers.ApartmentC
 # I18n
 GET         /language/english                             controllers.I18nController.english
 GET         /language/polish                              controllers.I18nController.polish
+
+# Rest API
+GET         /rest/users                                   controllers.UserRestController.users()
