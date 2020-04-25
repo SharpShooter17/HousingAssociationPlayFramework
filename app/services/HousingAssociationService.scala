@@ -108,8 +108,11 @@ class HousingAssociationService @Inject()(userDAO: UserDAO,
     }
   }
 
-  def downloadBillPdf(billId: Long): ByteArrayOutputStream = {
+  def downloadBillPdf(billId: Long, user: User): ByteArrayOutputStream = {
     val bill = billDAO.find(billId).getOrElse(throw AppException())
+    if (!findUserApartments(user).map(_.id).exists(_ == bill.apartmentId)) {
+      throw AppException()
+    }
     pdfService.createPdf(bill)
   }
 

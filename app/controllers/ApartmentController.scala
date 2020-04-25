@@ -8,7 +8,7 @@ import model.form.{BillForm, OccupantForm}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, EssentialAction}
+import play.api.mvc.{AbstractController, ControllerComponents, EssentialAction, Results}
 import security.Secured
 import services.HousingAssociationService
 
@@ -74,14 +74,18 @@ class ApartmentController @Inject()(cc: ControllerComponents,
     userDAO.all().filter(_.isUser).map(user => (user.id.toString, user.email)).toSeq
   }
 
-  def downloadBillInPdf(billId: Long): Action[AnyContent] = Action { implicit request =>
-    val outputStream: ByteArrayOutputStream = service.downloadBillPdf(billId)
-    val fileName = s"Bill_$billId.pdf"
-    val fos = new FileOutputStream(fileName)
-    fos.write(outputStream.toByteArray)
-    fos.close()
-
-    Ok.sendFile(new File(fileName), inline = true)
+  def downloadBillInPdf(billId: Long): EssentialAction = withUser { implicit user =>
+    implicit request =>
+      try {
+        val outputStream: ByteArrayOutputStream = service.downloadBillPdf(billId, user)
+        val fileName = s"Bill_$billId.pdf"
+        val fos = new FileOutputStream(fileName)
+        fos.write(outputStream.toByteArray)
+        fos.close()
+        Ok.sendFile(new File(fileName), inline = true)
+      } catch {
+        case _ => Results.Redirect(routes.ErrorController.accessDenied)
+      }
   }
 
 }
