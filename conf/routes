@@ -39,3 +39,4 @@ GET         /language/polish                              controllers.I18nContro
 
 # Rest API
 GET         /rest/users                                   controllers.UserRestController.users()
+POST        /rest/addUser                                 controllers.UserRestController.addUser()
